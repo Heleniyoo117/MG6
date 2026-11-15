@@ -1,9 +1,11 @@
 # MG6
 1. For Loops Inside Update
+
 A for loop written inside `Update` does not run one iteration per frame. The entire for loop runs synchronously and finishes before that `Update` call is completed. Even though `Update` is called once per frame, the loop inside it can repeat many times during that same frame.
 If the for loop takes a very long time to finish, it will block Unity’s main thread. The frame cannot finish while the loop is still running, so the game may freeze, stutter, or lag. It will not automatically split the loop across multiple frames. To spread work over time, I would need to use a coroutine, process only a small number of items per frame, or use another asynchronous approach.
 
 2. Issue With Jumping Through Platforms
+
 One issue I found is that the cat can also jump through the ceiling and leave the intended level. The platform logic disables the cat’s entire `Collider2D` whenever the Rigidbody2D’s `linearVelocity.y` is positive. The script only checks whether the cat is moving upward; it does not check whether the object above is a one-way platform, a solid ceiling, or another kind of collider.
 Because of this, the cat ignores collisions during the whole upward part of a jump. When the cat starts falling, `linearVelocity.y` becomes negative or zero, so the collider is enabled again and normal collisions can happen. This explains why the cat can pass through the bottom of platforms but also escape through the ceiling.
 A related possible issue is that the cat can sometimes jump again while overlapping a platform. When the collider is turned back on, Unity may detect the platform as a collision and set `_isGrounded` to true. If Space is still being held because the jump uses `Input.GetKey`, another jump can happen. A more precise solution would check the collision direction or use platform-specific collision settings instead of disabling the cat’s whole collider.
